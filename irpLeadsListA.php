@@ -64,6 +64,7 @@ alert($alert); ?>
                         <th>Telefon</th>
                         <th>E-mail</th>
                         <th style="width: 60px;">Level</th>
+                        <th>Produkt</th>
                         <th style="width: 50px;">zaznacz</th>
                     </tr>
                 </thead>
@@ -92,6 +93,7 @@ alert($alert); ?>
                         <th>Telefon</th>
                         <th>E-mail</th>
                         <th style="width: 60px;">Level</th>
+                        <th>Produkt</th>
                         <th style="width: 50px;">zaznacz</th>
                     </tr>
                 </thead>
@@ -146,15 +148,23 @@ window.onload = function()
     // ZAZNACZ WIELE LEADOW I WYŚWIETL FORMULARZ
     $(document).on('click','.btn-add-task-to-many',function(e)
     {
-        
+        e.preventDefault();
 
-        
+        var grupa_leadow = $(this).parents('.grupa-leadow');
+        $('input[data-klient-id]:checked',grupa_leadow).prop('checked',false);
 
+        var ile = $(this).data('ile');
+        if (ile > 0){
+            var checkboxes = $('input[data-klient-id]',grupa_leadow);
+            for ( var i = 0; i < ile; i++ ) {
+                checkboxes[i].checked = true;
+            }
 
-
+            $('#czarne-tlo-przydziel-zadanie-form').show();
+            $('#czarne-tlo-przydziel-zadanie-form input[name="grupa_leadow"]').val($(grupa_leadow).attr('id'));
+        }
     });
     
-
     //ładne formatowanie tabeli
     $('.tabela-leadow').DataTable({
         "retrieve": true,
@@ -180,7 +190,6 @@ window.onload = function()
             return false;
         }
     });
-
 
     $(document).on('submit','#przydziel-zadanie-form',function(e)
     {
@@ -237,12 +246,8 @@ window.onload = function()
         }
     });
     
-
     $(document).ready(pokaz_leady());
-    
 };
-
-
 
 function  pokaz_leady(){
     $.ajax({
@@ -266,17 +271,19 @@ function  pokaz_leady(){
                     var d2 = ((d1.length === 11 || d1.length === 12) && d1.indexOf("48")===0) ? d1.substr(2) : d1;
                     var d3 = ((d2.length === 10) && d2.indexOf("0")===0) ? d2.substr(1) : d2;
                     var d4 = (d3.length === 9 ) ? d3.replace(/^(\d{3})(\d{3})(\d{3})$/, '$1 $2 $3') : v.telefon;
-                    var level = v.level === 'klient' ? '<span class="label label-primary">KLIENT</span>' : '<span class="label label-success">UCZESTNIK</span>';                
+                    var level = v.level === 'klient' ? '<span class="label label-primary">KLIENT</span>' : '<span class="label label-success">UCZESTNIK</span>';    
+                    var nazwa_produktu = v.nazwa_produktu;            
                     var rowNode = table.row.add( [
                         '<a href="/klientKarta&id='+v.klient_id+'" target="_blank">'+v.klient+'&nbsp;<small><span class="glyphicon glyphicon-new-window"></span></small></a>', 
                         d4,
                         v.email,
                         level,
+                        nazwa_produktu,
                         '<input data-klient-id="'+v.klient_id+'" type="checkbox">'
                     ] 
                     ).node();
                     $(rowNode).attr('id','klient-'+v.klient_id+'-row');
-                    $('td:eq(4),td:eq(5)',rowNode).addClass( 'text-center');
+                    $('td:eq(5),td:eq(6)',rowNode).addClass( 'text-center');
                 });
                 table.draw();
             }
